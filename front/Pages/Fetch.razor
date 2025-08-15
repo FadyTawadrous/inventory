@@ -32,11 +32,11 @@ else
 }
 
 @code {
-    private Product[]? products;
+    private List<Product>? products;
 
     protected override async Task OnInitializedAsync()
     {
-        products = await Http.GetFromJsonAsync<Product[]>("http://localhost:5113/products");
+        products = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
     }
 
     public class Product

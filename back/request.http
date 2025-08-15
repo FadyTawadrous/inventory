@@ -1,0 +1,13 @@
+GET http://localhost:5113/products
+###
+GET http://localhost:5113/products/1
+###
+POST http://localhost:5113/products
+Content-Type: application/json
+
+{
+  "Id": 5,
+  "Name": "prod",
+  "Price": 100.0
+}
+###
