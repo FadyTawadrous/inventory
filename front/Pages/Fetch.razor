@@ -36,7 +36,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        products = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
+        try
+        {
+            products = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error fetching products: {ex.Message}");
+        }
     }
 
     public class Product
