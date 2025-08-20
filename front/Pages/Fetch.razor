@@ -30,11 +30,13 @@ else
     </table>
 }
 
+<h3>Users</h3>
+
 <button @onclick="FetchUsers">Fetch Users</button>
 
 @if (isLoading)
 {
-    <div class="spinner" role="status"></div>
+    <p><em>Loading users...</em></p>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -79,6 +81,7 @@ else
 
     private async Task FetchUsers()
     {
+        //users = null; // Reset users list
         isLoading = true;
         errorMessage = string.Empty;
         StateHasChanged();
@@ -91,11 +94,13 @@ else
         {
             await Task.Delay(2000, token); // Simulate a delay
             users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5113/users", token);
+            Console.WriteLine("request completed successfully.");
+            errorMessage = string.Empty;
             // https://jsonplaceholder.typicode.com/users?_limit=1
         }
         catch (TaskCanceledException)
         {
-            errorMessage = "Request was canceled.";
+            errorMessage = "Request was canceled. Please wait a moment";
         }
         catch (Exception ex)
         {
@@ -103,6 +108,7 @@ else
         }
         finally
         {
+            //cts?.Dispose();
             isLoading = false;
             StateHasChanged();
         }
