@@ -80,4 +80,12 @@ app.MapGet("/products/{id:int}", (int id) =>
     return Results.Ok(product);
 });
 
+List<User> users = new List<User>
+{
+    new User { Name = "Alice", Age = 30 },
+    new User { Name = "Bob", Age = 25 }
+};
+
+app.MapGet("/users", () => Results.Ok(users));
+
 app.Run();

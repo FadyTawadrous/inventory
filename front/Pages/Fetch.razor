@@ -1,5 +1,4 @@
 @inject HttpClient Http
-
 @page "/fetch"
 
 <h3>Products</h3>
@@ -31,7 +30,33 @@ else
     </table>
 }
 
+<button @onclick="FetchUsers">Fetch Users</button>
+
+@if (isLoading)
+{
+    <div class="spinner" role="status"></div>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="error">@errorMessage</div>
+}
+else if (users != null)
+{
+    <ul>
+        @foreach (var user in users)
+        {
+            <li>@user.Name (@user.Age)</li>
+        }
+    </ul>
+}
+else
+{
+    <p>No users found.</p>
+}
+
+
 @code {
+    // Fetch Products Section
     private List<Product>? products;
 
     protected override async Task OnInitializedAsync()
@@ -46,10 +71,41 @@ else
         }
     }
 
+    // Fetch Users Section
+    private List<User>? users;
+    private bool isLoading = false;
+    private string errorMessage = string.Empty;
+    private async Task FetchUsers()
+    {
+        isLoading = true;
+        errorMessage = string.Empty;
+
+        try
+        {
+            users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5113/users");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error fetching users: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    // Data Models
     public class Product
     {
         public int Id { get; set; }
         public required string Name { get; set; }
         public decimal Price { get; set; }
+    }
+
+    public class User
+    {
+        public string Name { get; set; } = string.Empty;
+        public int Age { get; set; }
     }
 }
