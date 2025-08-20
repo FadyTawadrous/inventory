@@ -75,14 +75,27 @@ else
     private List<User>? users;
     private bool isLoading = false;
     private string errorMessage = string.Empty;
+    private CancellationTokenSource? cts;
+
     private async Task FetchUsers()
     {
         isLoading = true;
         errorMessage = string.Empty;
+        StateHasChanged();
+
+        cts?.Cancel(); // Cancel any previous request
+        cts = new CancellationTokenSource();
+        var token = cts.Token;
 
         try
         {
-            users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5113/users");
+            await Task.Delay(2000, token); // Simulate a delay
+            users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5113/users", token);
+            // https://jsonplaceholder.typicode.com/users?_limit=1
+        }
+        catch (TaskCanceledException)
+        {
+            errorMessage = "Request was canceled.";
         }
         catch (Exception ex)
         {
