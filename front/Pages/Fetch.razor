@@ -1,9 +1,13 @@
-@inject HttpClient Http
 @page "/fetch"
+@inject HttpClient Http
+@inject UsersStateService UsersStateService
+@inject ProductsStateService ProductsStateService
+
+@implements IDisposable
 
 <h3>Products</h3>
 
-@if (products == null)
+@if (ProductsStateService.Products == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -18,7 +22,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var product in products)
+            @foreach (var product in ProductsStateService.Products)
             {
                 <tr>
                     <td>@product.Id</td>
@@ -42,10 +46,10 @@ else if (!string.IsNullOrEmpty(errorMessage))
 {
     <div class="error">@errorMessage</div>
 }
-else if (users != null)
+else if (UsersStateService.Users != null)
 {
     <ul>
-        @foreach (var user in users)
+        @foreach (var user in UsersStateService.Users)
         {
             <li>@user.Name (@user.Age)</li>
         }
@@ -59,13 +63,28 @@ else
 
 @code {
     // Fetch Products Section
-    private List<Product>? products;
+    /* protected override void OnInitialized()
+    {
+        // Subscribe to the OnChange event
+        ProductsStateService.OnChange += StateHasChanged;
+        UsersStateService.OnChange += StateHasChanged;
+    } */
 
+    public void Dispose()
+    {
+        // VERY IMPORTANT: Unsubscribe to prevent memory leaks
+        ProductsStateService.OnChange -= StateHasChanged;
+        UsersStateService.OnChange -= StateHasChanged;
+    }
+    
     protected override async Task OnInitializedAsync()
     {
+        ProductsStateService.OnChange += StateHasChanged;
+        UsersStateService.OnChange += StateHasChanged;
         try
         {
-            products = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
+            var retrievedProducts = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
+            ProductsStateService.UpdateProducts(retrievedProducts);
         }
         catch (Exception ex)
         {
@@ -74,7 +93,6 @@ else
     }
 
     // Fetch Users Section
-    private List<User>? users;
     private bool isLoading = false;
     private string errorMessage = string.Empty;
     private CancellationTokenSource? cts;
@@ -93,9 +111,10 @@ else
         try
         {
             await Task.Delay(2000, token); // Simulate a delay
-            users = await Http.GetFromJsonAsync<List<User>>("http://localhost:5113/users", token);
+            var retrievedUsers = await Http.GetFromJsonAsync<List<User>>("http://localhost:5113/users", token);
             Console.WriteLine("request completed successfully.");
             errorMessage = string.Empty;
+            UsersStateService.UpdateUsers(retrievedUsers);
             // https://jsonplaceholder.typicode.com/users?_limit=1
         }
         catch (TaskCanceledException)
@@ -114,17 +133,4 @@ else
         }
     }
 
-    // Data Models
-    public class Product
-    {
-        public int Id { get; set; }
-        public required string Name { get; set; }
-        public decimal Price { get; set; }
-    }
-
-    public class User
-    {
-        public string Name { get; set; } = string.Empty;
-        public int Age { get; set; }
-    }
 }
