@@ -4,6 +4,8 @@
 @inject ProductsStateService ProductsStateService
 @inject TokenService TokenService
 
+@using System.Net.Http.Headers;
+
 @implements IDisposable
 
 <h2>Token: @token</h2>
@@ -90,10 +92,15 @@ else
 
         try
         {
-            var retrievedProducts = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
-            ProductsStateService.UpdateProducts(retrievedProducts);
-
+            // Fetch and set the token
             token = await TokenService.GetTokenAsync();
+
+            // Set the Authorization header for subsequent requests
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // Fetch products
+            var retrievedProducts = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
+            ProductsStateService.UpdateProducts(retrievedProducts); 
         }
         catch (Exception ex)
         {
