@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+
 using front;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -10,5 +12,6 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddSingleton<UsersStateService>();
 builder.Services.AddSingleton<ProductsStateService>();
+builder.Services.AddHttpClient<TokenService>();
 
 await builder.Build().RunAsync();

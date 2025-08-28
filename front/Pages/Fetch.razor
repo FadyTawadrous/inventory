@@ -2,8 +2,11 @@
 @inject HttpClient Http
 @inject UsersStateService UsersStateService
 @inject ProductsStateService ProductsStateService
+@inject TokenService TokenService
 
 @implements IDisposable
+
+<h2>Token: @token</h2>
 
 <h3>Products</h3>
 
@@ -41,6 +44,9 @@ else
 @if (isLoading)
 {
     <p><em>Loading users...</em></p>
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
 }
 else if (!string.IsNullOrEmpty(errorMessage))
 {
@@ -81,10 +87,13 @@ else
     {
         ProductsStateService.OnChange += StateHasChanged;
         UsersStateService.OnChange += StateHasChanged;
+
         try
         {
             var retrievedProducts = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
             ProductsStateService.UpdateProducts(retrievedProducts);
+
+            token = await TokenService.GetTokenAsync();
         }
         catch (Exception ex)
         {
@@ -132,5 +141,7 @@ else
             StateHasChanged();
         }
     }
+
+    private string? token;
 
 }
