@@ -14,6 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+builder.Services.AddSingleton<CachingService>();
+builder.Services.AddMemoryCache();
+
 // Add CORS (Cross-Origin Resource Sharing Service) policy
 builder.Services.AddCors(options =>
 {
@@ -87,5 +90,16 @@ List<User> users = new List<User>
 };
 
 app.MapGet("/users", () => Results.Ok(users));
+
+CachingService cachingService = app.Services.GetRequiredService<CachingService>();
+app.MapGet("/cache",  () =>
+{
+    var cachedData = cachingService.GetOrCreate("cachedTime", entry =>
+    {
+        entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(5);
+        return  new Random().Next(1, 100);
+    });
+    return Results.Ok(new { CachedTime = cachedData });
+});
 
 app.Run();

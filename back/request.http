@@ -11,3 +11,4 @@ Content-Type: application/json
   "Price": 100.0
 }
 ###
+GET http://localhost:5113/cache
