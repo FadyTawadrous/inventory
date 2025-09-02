@@ -1,7 +1,39 @@
 ﻿@page "/"
 
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+
 <PageTitle>Home</PageTitle>
 
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+<h3>Theme Selector</h3>
+<button @onclick="ToggleTheme">Toggle Theme</button>
+<button @onclick="ClearStorage">Clear Storage</button>
+<p>Current Theme: @theme</p>
+
+@code
+{
+    private string theme = "light";
+
+    private async Task ToggleTheme()
+    {
+        theme = (theme == "light") ? "dark" : "light";
+        await localStorage.SetItemAsync("theme", theme);
+        // StateHasChanged(); // We don't need this because the async method will trigger a re-render using 2-way binding.
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine("Home Initialized");
+        theme = await localStorage.GetItemAsync<string>("theme") ?? "light";
+    }
+
+    private async Task ClearStorage()
+    {
+        await localStorage.ClearAsync();
+        await sessionStorage.ClearAsync();
+        // StateHasChanged();
+    }
+}
