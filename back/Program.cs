@@ -14,8 +14,18 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 
+// Register Caching Service
 builder.Services.AddSingleton<CachingService>();
 builder.Services.AddMemoryCache();
+
+// Register sessions
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Add CORS (Cross-Origin Resource Sharing Service) policy
 builder.Services.AddCors(options =>
@@ -38,6 +48,7 @@ if (app.Environment.IsDevelopment())
 app.UseCors();
 app.UseRouting();
 app.MapControllers();
+app.UseSession();
 
 // Ensure the database is created on application start
 // app.Lifetime.ApplicationStarted.Register(() =>
