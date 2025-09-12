@@ -8,7 +8,9 @@ Content-Type: application/json
 {
   "Id": 5,
   "Name": "prod",
-  "Price": 100.0
+  "Price": 100.0,
+  "Stock": 50,
+  "Category": {"Id": 3, "Name": "Cat3"}
 }
 ###
 GET http://localhost:5113/cache

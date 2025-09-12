@@ -1,6 +1,6 @@
 public class UsersStateService
 {
-    public List<User> Users { get; private set; }
+    public List<User> Users { get; private set; } = new List<User>();
 
     public event Action? OnChange;
 

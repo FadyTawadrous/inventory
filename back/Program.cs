@@ -65,7 +65,8 @@ app.MapGet("/", () => "Hello World!");
 //     () => new[] { new { Id = 1, Name = "Product 1", Price = 70.0m }, new { Id = 2, Name = "Product 2", Price = 50.0m } });
 
 List<Product> products = new List<Product>();
-products.Add(new Product { Id = 1, Name = "Product 1", Price = 70.0m });
+products.Add(new Product { Id = 1, Name = "Product 1", Price = 70.0m, Stock = 100, Category = new Category { Id = 1, Name = "Cat1" } });
+products.Add(new Product { Id = 2, Name = "Product 2", Price = 30.0m, Stock = 25, Category = new Category {Id = 2, Name = "Cat2"} });
 
 // Map to add a new product
 app.MapPost("/products", (Product product) =>
@@ -74,7 +75,9 @@ app.MapPost("/products", (Product product) =>
     {
         Id = products.Count + 1,
         Name = product.Name,
-        Price = product.Price
+        Price = product.Price,
+        Stock = product.Stock,
+        Category = product.Category
     };
     products.Add(newProduct);
     return Results.Created($"/products/{newProduct.Id}", newProduct);

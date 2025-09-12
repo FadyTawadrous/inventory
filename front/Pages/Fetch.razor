@@ -8,7 +8,7 @@
 
 @implements IDisposable
 
-<h2>Token: @token</h2>
+<h2>Token: @authToken</h2>
 
 <h3>Products</h3>
 
@@ -24,6 +24,8 @@ else
                 <th>Id</th>
                 <th>Name</th>
                 <th>Price</th>
+                <th>Stock</th>
+                <th>Category</th>
             </tr>
         </thead>
         <tbody>
@@ -33,6 +35,8 @@ else
                     <td>@product.Id</td>
                     <td>@product.Name</td>
                     <td>@product.Price.ToString("C")</td>
+                    <td>@product.Stock</td>
+                    <td>@product.Category?.Name</td>
                 </tr>
             }
         </tbody>
@@ -77,7 +81,8 @@ else
         ProductsStateService.OnChange += StateHasChanged;
         UsersStateService.OnChange += StateHasChanged;
     } */
-
+    
+    private string? authToken;
     public void Dispose()
     {
         // VERY IMPORTANT: Unsubscribe to prevent memory leaks
@@ -93,14 +98,14 @@ else
         try
         {
             // Fetch and set the token
-            token = await TokenService.GetTokenAsync();
+            authToken = await TokenService.GetTokenAsync();
 
             // Set the Authorization header for subsequent requests
-            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            Http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
             // Fetch products
-            var retrievedProducts = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
-            ProductsStateService.UpdateProducts(retrievedProducts); 
+            List<Product>? retrievedProducts = await Http.GetFromJsonAsync<List<Product>>("http://localhost:5113/products");
+            ProductsStateService.UpdateProducts(retrievedProducts);
         }
         catch (Exception ex)
         {
@@ -127,7 +132,7 @@ else
         try
         {
             await Task.Delay(2000, token); // Simulate a delay
-            var retrievedUsers = await Http.GetFromJsonAsync<List<User>>("http://localhost:5113/users", token);
+            List<User>? retrievedUsers = await Http.GetFromJsonAsync<List<User>>("http://localhost:5113/users", token);
             Console.WriteLine("request completed successfully.");
             errorMessage = string.Empty;
             UsersStateService.UpdateUsers(retrievedUsers);
@@ -148,7 +153,4 @@ else
             StateHasChanged();
         }
     }
-
-    private string? token;
-
 }
